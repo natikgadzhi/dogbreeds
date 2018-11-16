@@ -1,6 +1,8 @@
 import aiohttp, asyncio
 import os
 
+import rollbar
+
 from io import BytesIO
 from urllib.request import urlretrieve
 
@@ -15,7 +17,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # TODO
-# 1. [ ] Switch to env variables
+# 1. [x] Switch to env variables
 # 2. [ ] Add rollbar error tracking
 # 3. [ ] Setup persistent pictures storage on google cloud
 # 4. [ ]
@@ -79,15 +81,18 @@ def photo(bot, update):
         update.message.reply_text(f"It looks like a {class_to_human(pred_class)}!")
 
     except:
+        update.message.reply_text("That was a bit too hard for me ;-(")
         rollbar.report_exc_info()
 
 
 if __name__ == '__main__':
     rollbar.init(rollbar_token, rollbar_env)
 
-    learn = setup_learner()
+    if bot_token is None:
+        raise Exception("Provide bot_token env variable")
 
-    updater = Updater(token)
+    learn = setup_learner()
+    updater = Updater(bot_token)
 
     updater.dispatcher.add_handler(CommandHandler('start', start))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
