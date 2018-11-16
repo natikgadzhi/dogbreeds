@@ -18,9 +18,10 @@ load_dotenv()
 
 # TODO
 # 1. [x] Switch to env variables
-# 2. [ ] Add rollbar error tracking
+# 2. [x] Add rollbar error tracking
 # 3. [ ] Setup persistent pictures storage on google cloud
-# 4. [ ]
+# 4. [ ] Improve the model a bit to ~92-95%?
+# 5. [ ] Add an analytics suite go understand how many people interacted with the bot?
 
 path = Path(__file__).parent
 arch = models.resnet50
@@ -48,8 +49,10 @@ def start(bot, update):
     update.message.reply_text(f"Howdy {update.message.from_user.first_name}! " +
     "Send me your doggie pic.")
 
+
 def text(bot, update):
     update.message.reply_text("Please only send dog pics thx 🐕")
+
 
 def photo(bot, update):
     try:
@@ -87,6 +90,7 @@ def photo(bot, update):
 
 if __name__ == '__main__':
     rollbar.init(rollbar_token, rollbar_env)
+    rollbar.report_message('Starting up', level='info')
 
     if bot_token is None:
         raise Exception("Provide bot_token env variable")

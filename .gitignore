@@ -1,3 +1,5 @@
 .env
 *.pth
 *.pkl
+
+app/tmp
