@@ -46,6 +46,9 @@ def setup_learner():
 def class_to_human(pred_class):
     return ' '.join(pred_class.split('-')[-1].split('_'))
 
+def record_incorrect_label(label_row):
+    with open(data_path/'labels.csv','a') as fd:
+        fd.write(label_row)
 
 def start(bot, update):
     update.message.reply_text(f"Howdy {update.message.from_user.first_name}! " +
@@ -62,6 +65,7 @@ def button(bot, update):
         reply_text = "💙"
     else:
         reply_text = "Thanks!"
+        record_incorrect_label(query.data)
 
     bot.edit_message_text(text=reply_text,
                           chat_id=query.message.chat_id,
@@ -99,7 +103,7 @@ def photo(bot, update):
 
         keyboard = [[InlineKeyboardButton("Yep!", callback_data='correct')]] + \
             [[InlineKeyboardButton(class_to_human(classes[i]), \
-            callback_data=str(i))] for i in best_idx]
+            callback_data=f"{pic_file_name},{classes[i]}")] for i in best_idx]
 
         reply_markup = InlineKeyboardMarkup(keyboard)
 
