@@ -9,8 +9,8 @@ from urllib.request import urlretrieve
 from fastai import *
 from fastai.vision import *
 
-from telegram import ChatAction
-from telegram.ext import Updater, MessageHandler, CommandHandler
+from telegram import ChatAction, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import Updater, MessageHandler, CommandHandler, CallbackQueryHandler
 from telegram.ext.filters import Filters
 
 from dotenv import load_dotenv
@@ -19,8 +19,9 @@ load_dotenv()
 # TODO
 # 1. [x] Switch to env variables
 # 2. [x] Add rollbar error tracking
-# 3. [ ] Setup persistent pictures storage on google cloud
+# 3. [x] Setup persistent pictures storage on google cloud
 # 4. [ ] Improve the model a bit to ~92-95%?
+# 5. [ ] Ask if the answer was correct and send buttons
 # 5. [ ] Add an analytics suite go understand how many people interacted with the bot?
 
 path = Path(__file__).parent
@@ -54,6 +55,18 @@ def start(bot, update):
 def text(bot, update):
     update.message.reply_text("Please only send dog pics thx 🐕")
 
+def button(bot, update):
+    query = update.callback_query
+
+    if query.data == 'correct':
+        reply_text = "💙"
+    else:
+        reply_text = "Thanks!"
+
+    bot.edit_message_text(text=reply_text,
+                          chat_id=query.message.chat_id,
+                          message_id=query.message.message_id)
+
 
 def photo(bot, update):
     try:
@@ -82,7 +95,18 @@ def photo(bot, update):
         pred_class, confidence, preds = learn.predict(img)
         print(f"      Breed class: {pred_class}")
 
-        update.message.reply_text(f"It looks like a {class_to_human(pred_class)}!")
+        best_idx = np.argpartition(preds, -4)[-4:-1]
+
+        keyboard = [[InlineKeyboardButton("Yep!", callback_data='correct')]] + \
+            [[InlineKeyboardButton(class_to_human(classes[i]), \
+            callback_data=str(i))] for i in best_idx]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        update.message.reply_text(f"It looks like a {class_to_human(pred_class)}!",
+            reply_markup=reply_markup)
+
+
 
     except:
         update.message.reply_text("That was a bit too hard for me ;-(")
@@ -106,6 +130,7 @@ if __name__ == '__main__':
         updater.dispatcher.add_handler(CommandHandler('start', start))
         updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
         updater.dispatcher.add_handler(MessageHandler(Filters.photo, photo))
+        updater.dispatcher.add_handler(CallbackQueryHandler(button))
 
         print("Starting up...")
         updater.start_polling()
