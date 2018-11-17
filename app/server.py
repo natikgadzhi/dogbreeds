@@ -44,7 +44,7 @@ def setup_learner():
     return learn
 
 def class_to_human(pred_class):
-    return ' '.join(pred_class.split('-')[-1].split('_'))
+    return ' '.join(pred_class.split('-')[-1].split('_')).capitalize()
 
 def record_incorrect_label(label_row):
     with open(data_path/'labels.csv','a') as fd:
