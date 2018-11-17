@@ -16,13 +16,8 @@ from telegram.ext.filters import Filters
 from dotenv import load_dotenv
 load_dotenv()
 
-# TODO
-# 1. [x] Switch to env variables
-# 2. [x] Add rollbar error tracking
-# 3. [x] Setup persistent pictures storage on google cloud
-# 4. [ ] Improve the model a bit to ~92-95%?
-# 5. [x] Ask if the answer was correct and send buttons
-# 5. [ ] Add an analytics and track live model accuracy
+
+# Configuration
 #
 
 path = Path(__file__).parent
