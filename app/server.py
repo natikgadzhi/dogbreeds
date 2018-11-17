@@ -24,6 +24,7 @@ load_dotenv()
 # 5. [ ] Add an analytics suite go understand how many people interacted with the bot?
 
 path = Path(__file__).parent
+data_path = Path(os.path.normpath(path/'../data/live'))
 arch = models.resnet50
 classes = pickle.load(open(path/'models/classes.pkl', 'rb'))
 
@@ -74,10 +75,10 @@ def photo(bot, update):
 
         print("      Downloading the pic to tmp...")
         pic_file_name = pic_url.split("/")[-1]
-        urlretrieve(pic_url, path/'tmp'/pic_file_name)
+        urlretrieve(pic_url, data_path/pic_file_name)
 
         print("      Evaluating the image...")
-        img = open_image(path/'tmp'/pic_file_name)
+        img = open_image(data_path/pic_file_name)
         pred_class, confidence, preds = learn.predict(img)
         print(f"      Breed class: {pred_class}")
 
@@ -92,16 +93,23 @@ if __name__ == '__main__':
     rollbar.init(rollbar_token, rollbar_env)
     rollbar.report_message('Starting up', level='info')
 
-    if bot_token is None:
-        raise Exception("Provide bot_token env variable")
+    try:
+        if bot_token is None:
+            raise Exception("Provide bot_token env variable")
 
-    learn = setup_learner()
-    updater = Updater(bot_token)
+        if not os.path.exists(data_path):
+            raise Exception("Data path is not available")
 
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
-    updater.dispatcher.add_handler(MessageHandler(Filters.photo, photo))
+        learn = setup_learner()
+        updater = Updater(bot_token)
 
-    print("Starting up...")
-    updater.start_polling()
-    updater.idle()
+        updater.dispatcher.add_handler(CommandHandler('start', start))
+        updater.dispatcher.add_handler(MessageHandler(Filters.text, text))
+        updater.dispatcher.add_handler(MessageHandler(Filters.photo, photo))
+
+        print("Starting up...")
+        updater.start_polling()
+        updater.idle()
+
+    except:
+        rollbar.report_exc_info()
