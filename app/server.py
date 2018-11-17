@@ -65,7 +65,7 @@ def button(bot, update):
         reply_text = "💙"
     else:
         reply_text = "Thanks!"
-        record_incorrect_label(query.data)
+        record_incorrect_label(query.data + "\n")
 
     bot.edit_message_text(text=reply_text,
                           chat_id=query.message.chat_id,
