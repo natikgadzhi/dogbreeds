@@ -21,8 +21,9 @@ load_dotenv()
 # 2. [x] Add rollbar error tracking
 # 3. [x] Setup persistent pictures storage on google cloud
 # 4. [ ] Improve the model a bit to ~92-95%?
-# 5. [ ] Ask if the answer was correct and send buttons
-# 5. [ ] Add an analytics suite go understand how many people interacted with the bot?
+# 5. [x] Ask if the answer was correct and send buttons
+# 5. [ ] Add an analytics and track live model accuracy
+#
 
 path = Path(__file__).parent
 data_path = Path(os.path.normpath(path/'../data/live'))
@@ -35,6 +36,8 @@ bot_token = os.getenv('bot_token')
 rollbar_token = os.getenv('rollbar_token')
 rollbar_env = os.getenv('rollbar_env', 'development')
 
+# Helper functions
+#
 
 def setup_learner():
     data_bunch = ImageDataBunch.single_from_classes(path, classes,
@@ -50,10 +53,12 @@ def record_incorrect_label(label_row):
     with open(data_path/'labels.csv','a') as fd:
         fd.write(label_row)
 
+# Telegram Bot handler functions
+#
+
 def start(bot, update):
     update.message.reply_text(f"Howdy {update.message.from_user.first_name}! " +
     "Send me your doggie pic.")
-
 
 def text(bot, update):
     update.message.reply_text("Please only send dog pics thx 🐕")
@@ -70,7 +75,6 @@ def button(bot, update):
     bot.edit_message_text(text=reply_text,
                           chat_id=query.message.chat_id,
                           message_id=query.message.message_id)
-
 
 def photo(bot, update):
     try:
@@ -109,8 +113,6 @@ def photo(bot, update):
 
         update.message.reply_text(f"It looks like a {class_to_human(pred_class)}!",
             reply_markup=reply_markup)
-
-
 
     except:
         update.message.reply_text("That was a bit too hard for me ;-(")
