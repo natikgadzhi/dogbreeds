@@ -22,7 +22,7 @@ load_dotenv()
 
 path = Path(__file__).parent
 data_path = Path(os.path.normpath(path/'../data/live'))
-arch = models.resnet50
+arch = models.resnet101
 classes = pickle.load(open(path/'models/classes.pkl', 'rb'))
 
 model_file_name = os.getenv('model', 'stage2-50-ep8-ep16')
