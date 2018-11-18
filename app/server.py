@@ -26,7 +26,7 @@ arch = models.resnet101
 classes = pickle.load(open(path/'models/classes.pkl', 'rb'))
 
 model_file_name = os.getenv('model', 'stage2-50-ep8-ep16')
-size = os.getenv('size', 299)
+size = int(os.getenv('size', 299))
 bot_token = os.getenv('bot_token')
 rollbar_token = os.getenv('rollbar_token')
 rollbar_env = os.getenv('rollbar_env', 'development')
