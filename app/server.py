@@ -55,7 +55,6 @@ def start(bot, update):
     update.message.reply_text(f"Howdy {update.message.from_user.first_name}! " +
     "Send me your doggie pic.")
 
-
 def stats(bot, update):
     if update.message.from_user.username == 'xnutsive':
         files_uploaded = len(glob.glob1(data_path, '*')) - 1
